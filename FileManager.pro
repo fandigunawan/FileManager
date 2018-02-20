@@ -21,3 +21,6 @@ HEADERS  += mainwindow.h \
         zip/src/miniz.h
 
 FORMS    += mainwindow.ui
+
+RESOURCES += \
+    resources.qrc
