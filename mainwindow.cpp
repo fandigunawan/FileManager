@@ -23,7 +23,8 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_actionAbout_triggered()
 {
-    QMessageBox::about(this, tr("About File Compression"), tr("Created using Qt 5.6.2 by Fandi"));
+    //QMessageBox::about(this, tr("About File Compression"), tr("Created using Qt 5.6.2 by Fandi"));
+    QMessageBox::aboutQt(this, "About File Compression");
 }
 
 void MainWindow::on_actionOpen_triggered()
@@ -132,4 +133,9 @@ void MainWindow::on_actionOpen_Zip_triggered()
     ui->actionOpen_Folder->setEnabled(false);
     ui->actionOpen_Zip->setEnabled(false);
     thread.Extract(fileZip, dirOutput);
+}
+
+void MainWindow::on_actionExit_triggered()
+{
+    QCoreApplication::quit();
 }

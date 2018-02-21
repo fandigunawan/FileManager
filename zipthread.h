@@ -29,7 +29,7 @@ private:
     QString dirOutput;
     QString rootDir;
     int mode;
-    enum { MODE_COMPRESS, MODE_EXTRACT, UNKNOWN};
+    enum { MODE_COMPRESS, MODE_EXTRACT, MODE_UNKNOWN};
     int on_extract_entry(const char *fileName, void *arg);
 };
 

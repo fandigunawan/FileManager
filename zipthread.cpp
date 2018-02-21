@@ -10,7 +10,8 @@
 ZipThread::ZipThread(QObject * parent) : QThread(parent)
 {
     abort = false;
-    mode = UNKNOWN;
+    // Intially set mode to unknown
+    mode = MODE_UNKNOWN;
 }
 /*!
  * \brief ZipThread::~ZipThread Destructor
@@ -31,6 +32,7 @@ void ZipThread::Abort()
         condition.wakeOne();
         mutex.unlock();
         wait();
+        this->mode = MODE_UNKNOWN;
     }
 }
 /*!
@@ -113,6 +115,9 @@ void ZipThread::run()
         break;
     }
     qDebug() << "Exit zip process";
+    mutex.lock();
+    this->mode = MODE_UNKNOWN;
+    mutex.unlock();
 }
 int ZipThread::on_extract_entry(const char *fileName, void *arg)
 {

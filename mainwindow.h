@@ -25,6 +25,8 @@ private slots:
 
     void on_actionOpen_Zip_triggered();
 
+    void on_actionExit_triggered();
+
 private:
     Ui::MainWindow *ui;
     ZipThread thread;
