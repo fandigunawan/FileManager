@@ -12,6 +12,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    connect(&thread, SIGNAL(updateStatus(QString)), this, SLOT(statusUpdated(QString)));
+    connect(&thread, SIGNAL(finished()), this, SLOT(actionCancelEnabled()));
 }
 
 MainWindow::~MainWindow()
@@ -38,56 +40,21 @@ void MainWindow::on_actionOpen_triggered()
         QMessageBox::information(this, "Information", "No file is selected, the process is aborted");
         return;
     }
-    updateTextEdit("Creating zip file : " + fileZip + "\n");
-    processFile(fileSelected, fileZip, "");
+    ui->plainTextEdit->clear();
+    statusUpdated("Creating zip file : " + fileZip + "\n");
+    ui->actionCancel->setEnabled(true);
+    ui->actionOpen->setEnabled(false);
+    ui->actionOpen_Folder->setEnabled(false);
+    thread.Compress(fileSelected, fileZip, "");
 
 
 }
-void MainWindow::updateTextEdit(QString text)
+void MainWindow::statusUpdated(QString text)
 {
     ui->plainTextEdit->appendPlainText(text);
 }
 
-void MainWindow::processFile(QStringList filesInput, QString fileZip, QString rootDir = "")
-{
-    qint64 fileSizeTotal = 0;
-    struct zip_t *zip = zip_open(fileZip.toLocal8Bit().data(), ZIP_DEFAULT_COMPRESSION_LEVEL, 'w');
-    {
-        for(QString file : filesInput)
-        {
-            qDebug() << file;
-            QFileInfo fi(file);
-            if(fi.exists(file))
-            {
-                updateTextEdit("Compressing : " + file + " " + QString::number(fi.size()) + " bytes");
-                fileSizeTotal += fi.size();
-                QString temp(file);
-                if(rootDir != "")
-                {
-                    temp = temp.remove(rootDir + "/");
-                    qDebug() << "Temp = " << temp << " File " << file;
-                }
 
-                zip_entry_open(zip, temp.toLocal8Bit().data());
-                {
-                    zip_entry_fwrite(zip, file.toLocal8Bit().data());
-                }
-                zip_entry_close(zip);
-            }
-            else
-            {
-                updateTextEdit("File is not exist : " + file);
-            }
-        }
-    }
-    zip_close(zip);
-    QFileInfo fiZip(fileZip);
-    if(fiZip.exists())
-    {
-        updateTextEdit("Compressed file result size " + QString::number(fiZip.size()) + "/" + QString::number(fileSizeTotal)
-                                           + " " + QString::number(fiZip.size() * 100 / fileSizeTotal) + "%");
-    }
-}
 
 void MainWindow::on_actionOpen_Folder_triggered()
 {
@@ -105,10 +72,18 @@ void MainWindow::on_actionOpen_Folder_triggered()
     }
 
     QStringList fileSelected = findFilesRecursively(dirSelected);
-    updateTextEdit("Creating zip file : " + fileZip + "\n");
-    processFile(fileSelected, fileZip, dirSelected);
+    ui->plainTextEdit->clear();
+    statusUpdated("Creating zip file : " + fileZip + "\n");
+    ui->actionCancel->setEnabled(true);
+    ui->actionOpen->setEnabled(false);
+    ui->actionOpen_Folder->setEnabled(false);
+    thread.Compress(fileSelected, fileZip, dirSelected);
 }
-// this function stores the absolute paths of each file in a QVector
+/*!
+ * \brief Find files recursively
+ * \param dirPath input directory name
+ * \return list of files, including directory name
+ */
 QStringList MainWindow::findFilesRecursively(QString dirPath)
 {
     QStringList listOfFiles;
@@ -120,4 +95,16 @@ QStringList MainWindow::findFilesRecursively(QString dirPath)
        listOfFiles.push_back(it.next());
     }
     return listOfFiles;
+}
+
+
+void MainWindow::on_actionCancel_triggered()
+{
+    thread.Abort();
+}
+void MainWindow::actionCancelEnabled()
+{
+    ui->actionCancel->setEnabled(false);
+    ui->actionOpen->setEnabled(true);
+    ui->actionOpen_Folder->setEnabled(true);
 }

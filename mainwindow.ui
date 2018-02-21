@@ -86,7 +86,7 @@
     <property name="title">
      <string>Actions</string>
     </property>
-    <addaction name="actionCompress"/>
+    <addaction name="actionCancel"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -111,9 +111,13 @@
    <addaction name="actionOpen"/>
    <addaction name="actionOpen_Folder"/>
    <addaction name="separator"/>
-   <addaction name="actionCompress"/>
+   <addaction name="actionCancel"/>
   </widget>
   <action name="actionAbout">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/resources/sign-info.png</normaloff>:/resources/sign-info.png</iconset>
+   </property>
    <property name="text">
     <string>About</string>
    </property>
@@ -127,15 +131,6 @@
     <string>Open</string>
    </property>
   </action>
-  <action name="actionCompress">
-   <property name="icon">
-    <iconset resource="resources.qrc">
-     <normaloff>:/resources/box.png</normaloff>:/resources/box.png</iconset>
-   </property>
-   <property name="text">
-    <string>Compress</string>
-   </property>
-  </action>
   <action name="actionOpen_Folder">
    <property name="icon">
     <iconset resource="resources.qrc">
@@ -143,6 +138,18 @@
    </property>
    <property name="text">
     <string>Open Folder</string>
+   </property>
+  </action>
+  <action name="actionCancel">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/resources/sign-error.png</normaloff>:/resources/sign-error.png</iconset>
+   </property>
+   <property name="text">
+    <string>Cancel</string>
    </property>
   </action>
  </widget>

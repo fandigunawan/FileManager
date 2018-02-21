@@ -4,5 +4,7 @@
         <file>resources/cog.png</file>
         <file>resources/folder.png</file>
         <file>resources/file-empty.png</file>
+        <file>resources/sign-error.png</file>
+        <file>resources/sign-info.png</file>
     </qresource>
 </RCC>

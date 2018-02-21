@@ -14,11 +14,13 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-        zip/src/zip.c
+        zip/src/zip.c \
+    zipthread.cpp
 
 HEADERS  += mainwindow.h \
         zip/src/zip.h \
-        zip/src/miniz.h
+        zip/src/miniz.h \
+    zipthread.h
 
 FORMS    += mainwindow.ui
 
