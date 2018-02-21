@@ -84,6 +84,7 @@
     </property>
     <addaction name="actionOpen"/>
     <addaction name="actionOpen_Folder"/>
+    <addaction name="actionOpen_Zip"/>
    </widget>
    <widget class="QMenu" name="menuActions">
     <property name="title">
@@ -113,6 +114,8 @@
    </attribute>
    <addaction name="actionOpen"/>
    <addaction name="actionOpen_Folder"/>
+   <addaction name="separator"/>
+   <addaction name="actionOpen_Zip"/>
    <addaction name="separator"/>
    <addaction name="actionCancel"/>
   </widget>
@@ -153,6 +156,15 @@
    </property>
    <property name="text">
     <string>Cancel</string>
+   </property>
+  </action>
+  <action name="actionOpen_Zip">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/resources/box-out.png</normaloff>:/resources/box-out.png</iconset>
+   </property>
+   <property name="text">
+    <string>Open Zip</string>
    </property>
   </action>
  </widget>

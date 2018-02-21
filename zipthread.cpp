@@ -10,6 +10,7 @@
 ZipThread::ZipThread(QObject * parent) : QThread(parent)
 {
     abort = false;
+    mode = UNKNOWN;
 }
 /*!
  * \brief ZipThread::~ZipThread Destructor
@@ -29,7 +30,6 @@ void ZipThread::Abort()
         abort = true;
         condition.wakeOne();
         mutex.unlock();
-
         wait();
     }
 }
@@ -41,63 +41,87 @@ void ZipThread::run()
     // Prevent data from being overwritten
     mutex.lock();
     QStringList filesInput(this->filesInput);
-    QString fileOutput(this->fileOutput);
+    QString fileZip(this->fileZip);
     QString rootDir(this->rootDir);
+    QString dirOutput(this->dirOutput);
+    int mode = this->mode;
     mutex.unlock();
 
-    // Actual zip process
-    qint64 fileSizeTotal = 0;
-    struct zip_t *zip = zip_open(fileOutput.toLocal8Bit().data(), ZIP_DEFAULT_COMPRESSION_LEVEL, 'w');
+    switch(mode)
     {
-        for(QString file : filesInput)
+    case MODE_COMPRESS:
         {
-            if(abort)
+            // Actual zip process
+            qint64 fileSizeTotal = 0;
+            struct zip_t *zip = zip_open(fileZip.toLocal8Bit().data(), ZIP_DEFAULT_COMPRESSION_LEVEL, 'w');
             {
-                zip_close(zip);
-                QFileInfo fiZip(fileOutput);
-                if(fiZip.exists())
+                for(QString file : filesInput)
                 {
-                    emit updateStatus("Compressed file result size " + QString::number(fiZip.size()) + "/" + QString::number(fileSizeTotal)
-                                                       + " " + QString::number(fiZip.size() * 100 / fileSizeTotal) + "%");
-                }
-                emit updateStatus("Aborting");
-                return;
-            }
-            qDebug() << "Process file : " << file;
-            QFileInfo fi(file);
-            if(fi.exists(file))
-            {
-                if(fi.isFile())
-                {
-                    emit updateStatus("Compressing : " + file + " " + QString::number(fi.size()) + " bytes");
-                    fileSizeTotal += fi.size();
-                    QString temp(file);
-                    if(rootDir != "")
+                    if(abort)
                     {
-                        temp = temp.remove(rootDir + "/");
+                        zip_close(zip);
+                        QFileInfo fiZip(fileZip);
+                        if(fiZip.exists())
+                        {
+                            emit updateStatus("Compressed file result size " + QString::number(fiZip.size()) + "/" + QString::number(fileSizeTotal)
+                                                               + " " + QString::number(fiZip.size() * 100 / fileSizeTotal) + "%");
+                        }
+                        emit updateStatus("Aborting");
+                        return;
                     }
+                    qDebug() << "Compressing file : " << file;
+                    QFileInfo fi(file);
+                    if(fi.exists(file))
+                    {
+                        if(fi.isFile())
+                        {
+                            emit updateStatus("Compressing : " + file + " " + QString::number(fi.size()) + " bytes");
+                            fileSizeTotal += fi.size();
+                            QString temp(file);
+                            if(rootDir != "")
+                            {
+                                temp = temp.remove(rootDir + "/");
+                            }
 
-                    zip_entry_open(zip, temp.toLocal8Bit().data());
-                    {
-                        zip_entry_fwrite(zip, file.toLocal8Bit().data());
+                            zip_entry_open(zip, temp.toLocal8Bit().data());
+                            {
+                                zip_entry_fwrite(zip, file.toLocal8Bit().data());
+                            }
+                            zip_entry_close(zip);
+                        }
                     }
-                    zip_entry_close(zip);
+                    else
+                    {
+                        emit updateStatus("File is not exist : " + file);
+                    }
                 }
             }
-            else
+            zip_close(zip);
+            QFileInfo fiZip(fileZip);
+            if(fiZip.exists())
             {
-                emit updateStatus("File is not exist : " + file);
+                emit updateStatus("Compressed file result size " + QString::number(fiZip.size()) + "/" + QString::number(fileSizeTotal)
+                                                   + " " + QString::number(fiZip.size() * 100 / fileSizeTotal) + "%");
             }
         }
-    }
-    zip_close(zip);
-    QFileInfo fiZip(fileOutput);
-    if(fiZip.exists())
-    {
-        emit updateStatus("Compressed file result size " + QString::number(fiZip.size()) + "/" + QString::number(fileSizeTotal)
-                                           + " " + QString::number(fiZip.size() * 100 / fileSizeTotal) + "%");
+        break;
+
+    case MODE_EXTRACT:
+        emit updateStatus("Please wait.....");
+        zip_extract(fileZip.toLocal8Bit().data(), dirOutput.toLocal8Bit().data(), NULL, NULL);
+        emit updateStatus("Extract zip file is completed");
+        break;
     }
     qDebug() << "Exit zip process";
+}
+int ZipThread::on_extract_entry(const char *fileName, void *arg)
+{
+    static int i = 0;
+    int n = *(int *)arg;
+    emit updateStatus(QString::number(++i) + "/" + QString::number(n) + " Extracting " + QString(fileName));
+    //printf("Extracted: %s (%d of %d)\n", filename, ++i, n);
+
+    return 0;
 }
 /*!
  * \brief Compress file, a thread will be started
@@ -105,8 +129,9 @@ void ZipThread::run()
  * \param fileOutput zip file output
  * \param rootDir directory root of filesInput, if selected directory is root directory insert "" instead
  */
-void ZipThread::Compress(QStringList filesInput, QString fileOutput, QString rootDir)
+void ZipThread::Compress(QStringList filesInput, QString fileZip, QString rootDir)
 {
+    // Make sure that there is no thread is running
     if(isRunning() == true)
     {
         return;
@@ -115,10 +140,33 @@ void ZipThread::Compress(QStringList filesInput, QString fileOutput, QString roo
     this->filesInput.clear();
     this->filesInput.append(filesInput);
 
-    this->fileOutput = fileOutput;
+    this->fileZip = fileZip;
 
     this->rootDir = rootDir;
+    this->mode = MODE_COMPRESS;
+
     // Start thread
     start(LowPriority);
 
+}
+/*!
+ * \brief Extract zip file
+ * \param Input zip file
+ * \param Ouput directory
+ */
+void ZipThread::Extract(QString fileZip, QString dirOutput)
+{
+    // Make sure that the thread is not running
+    if(isRunning() == true)
+    {
+        return;
+    }
+    this->filesInput.clear();
+    this->abort = false;
+    this->fileZip = fileZip;
+    this->dirOutput = dirOutput;
+    this->mode = MODE_EXTRACT;
+    this->rootDir = "";
+
+    start(LowPriority);
 }

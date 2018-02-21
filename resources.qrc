@@ -6,5 +6,6 @@
         <file>resources/file-empty.png</file>
         <file>resources/sign-error.png</file>
         <file>resources/sign-info.png</file>
+        <file>resources/box-out.png</file>
     </qresource>
 </RCC>

@@ -11,9 +11,9 @@ class ZipThread : public QThread
 public:
     ZipThread(QObject * parent = 0);
     ~ZipThread();
-    void Compress(QStringList filesInput, QString fileOutput, QString rootDir);
+    void Compress(QStringList filesInput, QString fileZip, QString rootDir);
     void Abort();
-
+    void Extract(QString fileZip, QString dirOutput);
 signals:
     void updateStatus(QString status);
 
@@ -25,8 +25,12 @@ private:
     QWaitCondition condition;
     bool abort;
     QStringList filesInput;
-    QString fileOutput;
+    QString fileZip;
+    QString dirOutput;
     QString rootDir;
+    int mode;
+    enum { MODE_COMPRESS, MODE_EXTRACT, UNKNOWN};
+    int on_extract_entry(const char *fileName, void *arg);
 };
 
 #endif // ZIPTHREAD_H

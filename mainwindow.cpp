@@ -76,6 +76,7 @@ void MainWindow::on_actionOpen_Folder_triggered()
     statusUpdated("Creating zip file : " + fileZip + "\n");
     ui->actionCancel->setEnabled(true);
     ui->actionOpen->setEnabled(false);
+    ui->actionOpen_Zip->setEnabled(false);
     ui->actionOpen_Folder->setEnabled(false);
     thread.Compress(fileSelected, fileZip, dirSelected);
 }
@@ -107,4 +108,28 @@ void MainWindow::actionCancelEnabled()
     ui->actionCancel->setEnabled(false);
     ui->actionOpen->setEnabled(true);
     ui->actionOpen_Folder->setEnabled(true);
+    ui->actionOpen_Zip->setEnabled(true);
+}
+
+void MainWindow::on_actionOpen_Zip_triggered()
+{
+    QString fileZip = QFileDialog::getOpenFileName(this, "Open Zip File", QDir::homePath(), "Zip (*.zip)");
+    if(fileZip == nullptr)
+    {
+        QMessageBox::information(this, "Information", "No file is selected, the process is aborted");
+        return;
+    }
+    QString dirOutput = QFileDialog::getExistingDirectory(this, "Select folder", QDir::homePath());
+    if(dirOutput == nullptr)
+    {
+        QMessageBox::information(this, "Information", "No directory is selected, the process is aborted");
+        return;
+    }
+    ui->plainTextEdit->clear();
+    statusUpdated("Extracting zip file : " + fileZip + "\n");
+    ui->actionCancel->setEnabled(true);
+    ui->actionOpen->setEnabled(false);
+    ui->actionOpen_Folder->setEnabled(false);
+    ui->actionOpen_Zip->setEnabled(false);
+    thread.Extract(fileZip, dirOutput);
 }
