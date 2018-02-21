@@ -3,5 +3,6 @@
         <file>resources/box.png</file>
         <file>resources/cog.png</file>
         <file>resources/folder.png</file>
+        <file>resources/file-empty.png</file>
     </qresource>
 </RCC>

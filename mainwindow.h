@@ -14,11 +14,14 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-    void processFile(Ui::MainWindow *ui, QStringList fileSelected, QString fileZip);
+    void processFile(QStringList fileSelected, QString fileZip, QString rootDir);
+    QStringList findFilesRecursively(QString dirPath);
 private slots:
     void on_actionAbout_triggered();
     void on_actionOpen_triggered();
     void updateTextEdit(QString text);
+    void on_actionOpen_Folder_triggered();
+
 private:
     Ui::MainWindow *ui;
 };

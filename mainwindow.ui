@@ -80,6 +80,7 @@
      <string>File</string>
     </property>
     <addaction name="actionOpen"/>
+    <addaction name="actionOpen_Folder"/>
    </widget>
    <widget class="QMenu" name="menuActions">
     <property name="title">
@@ -108,6 +109,8 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionOpen"/>
+   <addaction name="actionOpen_Folder"/>
+   <addaction name="separator"/>
    <addaction name="actionCompress"/>
   </widget>
   <action name="actionAbout">
@@ -118,7 +121,7 @@
   <action name="actionOpen">
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/resources/folder.png</normaloff>:/resources/folder.png</iconset>
+     <normaloff>:/resources/file-empty.png</normaloff>:/resources/file-empty.png</iconset>
    </property>
    <property name="text">
     <string>Open</string>
@@ -131,6 +134,15 @@
    </property>
    <property name="text">
     <string>Compress</string>
+   </property>
+  </action>
+  <action name="actionOpen_Folder">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/resources/folder.png</normaloff>:/resources/folder.png</iconset>
+   </property>
+   <property name="text">
+    <string>Open Folder</string>
    </property>
   </action>
  </widget>
