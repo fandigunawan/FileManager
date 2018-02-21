@@ -23,7 +23,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_actionAbout_triggered()
 {
-    QMessageBox::about(0, tr("About File Manager"), tr("Created using Qt 5.6.2 by Fandi"));
+    QMessageBox::about(this, tr("About File Compression"), tr("Created using Qt 5.6.2 by Fandi"));
 }
 
 void MainWindow::on_actionOpen_triggered()
